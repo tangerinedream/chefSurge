@@ -28,6 +28,7 @@ end
 node['apache']['sites'].each do |site_name, site_data|
 	document_root = "/srv/apache/#{site_name}"
 	template "/etc/apache2/sites-available/#{site_name}" do
+###		custom.erb is in the template directory, and is the shell for the virtual site file, customized per below
 		source "custom.erb"
 		mode "0644"
 		# variables is a method, hence the parens
@@ -39,15 +40,18 @@ node['apache']['sites'].each do |site_name, site_data|
 	end
 	execute "a2ensite #{site_name}" do
 		not_if do
+###			Don't do the execute if this link exists
 			File.symlink?("/etc/apache2/sites-enabled/#{site_name}")
 		end
 		notifies :restart, "service[apache2]"
 	end
 	directory document_root do
 		mode "0755"
+###		recursive means mkdir -p
 		recursive true
 	end
 	template "#{document_root}/index.html" do
+###		index.html.erb is in the template directory. Like a .jsp, template will merge and generate the html page
 		source "index.html.erb"
 		mode "0644"
 		variables(
@@ -57,6 +61,7 @@ node['apache']['sites'].each do |site_name, site_data|
 	end
 end
 
+### We used this before learning about templates and (index.html.)erb files
 ## cookbook_file "/var/www/index.html" do
 ## 	source "index.html"
 ## 	mode "0644"
