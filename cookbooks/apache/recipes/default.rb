@@ -27,6 +27,7 @@ end
 # node in this case is a hash(table), not a keyword
 node['apache']['sites'].each do |site_name, site_data|
 	document_root = "/srv/apache/#{site_name}"
+### Here, we are generating the virtual site file using a Template.
 	template "/etc/apache2/sites-available/#{site_name}" do
 ###		custom.erb is in the template directory, and is the shell for the virtual site file, customized per below
 		source "custom.erb"
@@ -50,6 +51,7 @@ node['apache']['sites'].each do |site_name, site_data|
 ###		recursive means mkdir -p
 		recursive true
 	end
+### Here, we are generating the index.html file using a Template.
 	template "#{document_root}/index.html" do
 ###		index.html.erb is in the template directory. Like a .jsp, template will merge and generate the html page
 		source "index.html.erb"
