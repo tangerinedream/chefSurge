@@ -6,11 +6,22 @@
 #
 # All rights reserved - Do Not Redistribute
 #
-## Add resource to Recipe
+## Resources are executed in the order declared in this file
+#
+## Add resource to INSTALL apache Recipe
+## package resource
+##    name is apache2
+##    state of package must be "installed"
+##    ":install" is a Ruby symbol
+##    action is idempotent
 package "apache2" do
-	action :install
+	action :install 
 end
 
+## Ensure service starts on reboot
+## resource type is "service"
+##    name is apache2
+##    actions to start service os well as onreboot
 service "apache2" do
 	action [ :enable, :start ]
 end
@@ -28,6 +39,7 @@ end
 node['apache']['sites'].each do |site_name, site_data|
 	document_root = "/srv/apache/#{site_name}"
 ### Here, we are generating the virtual site file using a Template.
+## template resource
 	template "/etc/apache2/sites-available/#{site_name}" do
 ###		custom.erb is in the template directory, and is the shell for the virtual site file, customized per below
 		source "custom.erb"
@@ -52,6 +64,7 @@ node['apache']['sites'].each do |site_name, site_data|
 		recursive true
 	end
 ### Here, we are generating the index.html file using a Template.
+## template resource
 	template "#{document_root}/index.html" do
 ###		index.html.erb is in the template directory. Like a .jsp, template will merge and generate the html page
 		source "index.html.erb"
@@ -64,6 +77,9 @@ node['apache']['sites'].each do |site_name, site_data|
 end
 
 ### We used this before learning about templates and (index.html.)erb files
+## Resource type is cookbook_file
+##      first parameter is the source
+##      other paramers are mode, etc...
 ## cookbook_file "/var/www/index.html" do
 ## 	source "index.html"
 ## 	mode "0644"
